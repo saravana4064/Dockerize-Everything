@@ -17,9 +17,6 @@ COPY . .
 # Build Angular app with selected environment
 RUN npm run build -- --configuration=$BUILD_ENV
 
-# Inject environment marker into index.html
-RUN sed -i "s/%%ENV%%/$BUILD_ENV/" /app/dist/frontend/index.html
-
 # Second stage: Serve with Nginx
 FROM nginx:alpine
 
