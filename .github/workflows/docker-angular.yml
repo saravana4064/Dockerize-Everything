@@ -1,0 +1,35 @@
+name: Build and Test Angular Docker Image
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build Docker image
+      run: |
+        cd angular-app
+        docker build -t angular-app-test .
+
+    - name: Run container
+      run: |
+        docker run -d --name angular-container -p 8080:80 angular-app-test
+        sleep 5  # wait for container to start
+
+    - name: Test with curl
+      run: |
+        curl -sSf http://localhost:8080 | grep -i "<title>" || (echo "Angular app not responding" && exit 1)
+
+    - name: Stop container
+      run: docker stop angular-container
