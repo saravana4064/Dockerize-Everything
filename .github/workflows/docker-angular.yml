@@ -20,8 +20,7 @@ jobs:
     - name: Build Docker image
       run: |
         cd angular-app
-        #docker build -t angular-app-test .
-        docker build --build-arg BUILD_ENV=production -t angular-app-test .
+        docker build -t angular-app-test .
 
     - name: Run container
       run: |
