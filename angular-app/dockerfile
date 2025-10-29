@@ -1,28 +1,30 @@
-# First stage where we provide the base image to use as 'build-stage'.
+# First stage: Build Angular app
 FROM node:18.13 AS build-stage
 
-# Create the container's working directory.
+# Set build-time environment (default to production)
+ARG BUILD_ENV=production
+
+# Create working directory
 WORKDIR /app
 
-# Copy project dependencies for Angular. 
-COPY package.json .
-
-# Execute dependencies within the container. 
+# Install dependencies
+COPY package.json ./
 RUN npm install
 
-# Copy all frontend files.
+# Copy all frontend files
 COPY . .
 
-# Command to build the application within the container.
-RUN npm run build
+# Build Angular app with selected environment
+RUN npm run build -- --configuration=$BUILD_ENV
 
-# Second stage where we use the nginx base image to create a proxy for request redirection.
+# Inject environment marker into index.html
+RUN sed -i "s/%%ENV%%/$BUILD_ENV/" /app/dist/frontend/index.html
+
+# Second stage: Serve with Nginx
 FROM nginx:alpine
 
-# Copy the output from the first scenario, containing static HTML pages for nginx.
+# Copy built Angular app to Nginx
 COPY --from=build-stage /app/dist/frontend/ /usr/share/nginx/html
 
-# Copy the 'nginx.conf' file to the specified path.
+# Copy custom Nginx config
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-
-
