@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  envName: 'Production'
+    production: true,
+    apiUrl: 'https://backhotelgrupo4epn.azurewebsites.net/'
 };
